@@ -15,6 +15,8 @@ import ssl
 import requests
 import warnings
 from gzip import GzipFile
+from lib.util import judgeRuleTime
+
 
 
 try:
