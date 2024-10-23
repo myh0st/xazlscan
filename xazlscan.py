@@ -102,7 +102,7 @@ def scanSingleSite(target):
             cmd = nucleipath + " -duc -t " + pocpath + str(sid) + "/ -u " + rootsite + " -o " + vulnfile
         else:
             cmd = "./" + nucleipath + " -duc -t " + pocpath + str(sid) + "/ -u " + rootsite + " -o " + vulnfile
-        print(cmd)
+        #print(cmd)
         execCmd(cmd)
 
     #读取漏洞文件，获取漏洞结果
@@ -129,8 +129,11 @@ def scanSiteFile(tfile):
 
     #第二步，获取网站信息并识别指纹，将结果保存在临时目录下
     uinfo = getTmpUuid()
-
+    l = len(list(open(tfile, encoding="utf-8")))
+    n = 0
     for site in open(tfile, encoding="utf-8"):
+        n = n + 1
+        print("[+]正在识别网站：", site, "当前第：", n, "个，总数：", l)
         rootsite = getRootSite(site.strip())
         syslist = get_site_info(rootsite, sysRules["system_rules"])
         for sid in syslist:
