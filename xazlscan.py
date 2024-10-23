@@ -9,10 +9,11 @@ from lib.util import *
 respath = "res/"
 vulnpath = "vulns/"
 pocpath = "pocdb/"
-nucleipath = "bin/nuclei"
+if sys.platform == 'win32':
+    nucleipath = "bin\\nuclei.exe"
+else:
+    nucleipath = "bin/nuclei"
 rulepath = "config/sysrule.json"
-
-
 
 #基于SID获取相关信息，根据用户选择同步 POC 到本地
 def getPocToLocal(sid, token, email):
@@ -97,7 +98,11 @@ def scanSingleSite(target):
             continue
 
         vulnfile = vulnpath + uinfo + "/" + str(sid) + ".txt"
-        cmd = "./" + nucleipath + " -duc -t " + pocpath + str(sid) + "/ -u " + rootsite + " -o " + vulnfile
+        if sys.platform == 'win32':
+            cmd = nucleipath + " -duc -t " + pocpath + str(sid) + "/ -u " + rootsite + " -o " + vulnfile
+        else:
+            cmd = "./" + nucleipath + " -duc -t " + pocpath + str(sid) + "/ -u " + rootsite + " -o " + vulnfile
+        print(cmd)
         execCmd(cmd)
 
     #读取漏洞文件，获取漏洞结果
@@ -138,7 +143,10 @@ def scanSiteFile(tfile):
             continue
 
         vulnfile = vulnpath + uinfo + "/" + str(sid) + ".txt"
-        cmd = "./" + nucleipath + " -duc -t " + pocpath + str(sid) + "/ -l " + respath + uinfo + "/" + sfile + " -o " + vulnfile
+        if sys.platform == 'win32':
+            cmd = nucleipath + " -duc -t " + pocpath + str(sid) + "/ -l " + respath + uinfo + "/" + sfile + " -o " + vulnfile
+        else:
+            cmd = "./" + nucleipath + " -duc -t " + pocpath + str(sid) + "/ -l " + respath + uinfo + "/" + sfile + " -o " + vulnfile
         execCmd(cmd)
 
     #最后，将所有漏洞检测的结果进行展示
