@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
+#author：myh0st@xazlsec
 
 import os
 import sys
 import click
+import threading
+import queue
 from lib.req import *
 from lib.util import *
 
@@ -14,6 +17,11 @@ if sys.platform == 'win32':
 else:
     nucleipath = "bin/nuclei"
 rulepath = "config/sysrule.json"
+inputQueue = queue.Queue()
+num = 0
+length = 0
+sysrules = {}
+
 
 #基于SID获取相关信息，根据用户选择同步 POC 到本地
 def getPocToLocal(sid, token, email):
@@ -109,9 +117,28 @@ def scanSingleSite(target):
     print("[+]漏洞检测结果如下：")
     for filename in os.listdir(vulnpath + uinfo):
         print(readFile(vulnpath + uinfo + "/" + filename))
+          
            
 #针对多个网站进行指纹识别及漏洞探测，非多线程版
-def scanSiteFile(tfile):
+def auto_get():
+    global sysrules
+    global length
+    global num
+    while True:
+        num = num + 1
+        rootsite = inputQueue.get()
+        syslist = get_site_info(rootsite, sysrules)
+        #print(sysrules)
+        for sid in syslist:
+            saveFile(respath+uinfo+"/"+str(sid)+".txt", rootsite)
+        if num % 100 == 0:
+            print("[+]正在指纹识别网站：", rootsite, "网站总数：", length, "当前进度：", num)
+            
+
+def scanSiteFile(tfile, thread=30):
+    global length
+    global sysrules
+    global uinfo
     email, token = getTokenOrEmail()
 
     if not checkBase(email, token):
@@ -129,16 +156,32 @@ def scanSiteFile(tfile):
 
     #第二步，获取网站信息并识别指纹，将结果保存在临时目录下
     uinfo = getTmpUuid()
-    l = len(list(open(tfile, encoding="utf-8")))
-    n = 0
-    for site in open(tfile, encoding="utf-8"):
-        n = n + 1
-        print("[+]正在识别网站：", site, "当前第：", n, "个，总数：", l)
-        rootsite = getRootSite(site.strip())
-        syslist = get_site_info(rootsite, sysRules["system_rules"])
-        for sid in syslist:
-            saveFile(respath+uinfo+"/"+str(sid)+".txt", rootsite)
+    #启用多线程，创建线程池
+    for x in range(int(thread)):
+        t = threading.Thread(target=auto_get)
+        t.setDaemon(True)
+        t.start()
 
+    length = len(list(open(tfile, encoding="utf-8")))
+    sysrules = sysRules["system_rules"]
+    sitelist = []
+    for site in open(tfile, encoding="utf-8"):
+        rootsite = getRootSite(site.strip())
+        if rootsite not in sitelist:
+            inputQueue.put(rootsite)
+        
+        while True:
+            if inputQueue.qsize() <= 1000:
+                break
+            else:
+                time.sleep(5)
+
+    while True:
+        time.sleep(5)
+        if inputQueue.qsize() <= 1:
+            break
+    #多线程部分结束
+        
     #第三步，根据获取到的所有系统类型，一一计算需要消耗的积分数
     for sfile in os.listdir(respath+uinfo):
         sid = sfile.split(".")[0]
@@ -161,12 +204,18 @@ def scanSiteFile(tfile):
 @click.command()
 @click.option("-u", "--target", help="指定需要检测的目标地址")
 @click.option("-f", "--tfile", help="指定需要检测的目标文件路径")
-def main(target, tfile):
+@click.option("-t", "--thread", help="指定指纹识别时使用的线程数默认30")
+
+def main(target, tfile, thread):
     if target:
         scanSingleSite(target)
 
     if tfile:
-        scanSiteFile(tfile)
+        if thread:
+            scanSiteFile(tfile, thread)
+        else:
+            scanSiteFile(tfile)
+        
 
 if __name__=="__main__":
     main()
