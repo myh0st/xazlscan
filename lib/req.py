@@ -152,7 +152,7 @@ def get_site_info(website, sytem_rules):
                 break
         if flag == True:
             systemlist.append(sid)
-            break
+            
     return systemlist
 
 #初始化规则库
