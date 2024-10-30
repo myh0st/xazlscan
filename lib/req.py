@@ -115,7 +115,7 @@ def send_request(url):
         #proxies = { "http": "127.0.0.1:8080","https": "127.0.0.1:8080"}
         with requests.get(url, timeout=10, headers=get_headers(), verify=False,
                           allow_redirects=True) as response:
-            if int(response.headers.get("content-length", default=1000)) > 100000:
+            if int(response.headers.get("content-length", default=1000)) > 200000:
                 code, rep_headers, body = get_response(url, response, True)
             else:
                 code, rep_headers, body = get_response(url, response)
