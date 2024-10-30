@@ -133,7 +133,7 @@ def auto_get():
         syslist = get_site_info(rootsite, sysrules)
         
         #判断是否识别为蜜罐，指纹识别结果超过阈值，或者命中蜜罐规则 5998
-        if len(syslist) >= 10 or 5998 in sysList:
+        if len(syslist) >= 10 or 5998 in syslist:
             continue
         
         #print(sysrules)
