@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-#author：myh0st@xazlsec
 
 import os
 import sys
@@ -97,8 +96,12 @@ def scanSingleSite(target):
     #第二步，获取网页信息并识别指纹
     rootsite = getRootSite(target)
     sysList = get_site_info(rootsite, sysRules["system_rules"])
-    uinfo = getTmpUuid()
+    uinfo = getTmpUuid()   
 
+    #判断是否识别为蜜罐，指纹识别结果超过阈值
+    if len(sysList) >= 6:
+        print("[-]该网站识别结果超过 6 个，疑似蜜罐，漏洞探测程序退出！")
+        sys.exit()
 
     #第三步，根据获取到的系统列表，判断用户是否有足够的积分购买POC
     for sid in sysList:
@@ -128,6 +131,11 @@ def auto_get():
         num = num + 1
         rootsite = inputQueue.get()
         syslist = get_site_info(rootsite, sysrules)
+        
+        #判断是否识别为蜜罐，指纹识别结果超过阈值
+        if len(syslist) >= 6:
+            continue
+        
         #print(sysrules)
         for sid in syslist:
             saveFile(respath+uinfo+"/"+str(sid)+".txt", rootsite)
