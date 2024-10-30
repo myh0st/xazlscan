@@ -97,7 +97,7 @@ def scanSingleSite(target):
     rootsite = getRootSite(target)
     sysList = get_site_info(rootsite, sysRules["system_rules"])
     uinfo = getTmpUuid()   
-    print(sysList)
+    #print(sysList)
     #判断是否识别为蜜罐，指纹识别结果超过阈值，或者命中蜜罐规则 5998
     if len(sysList) >= 10 or 5998 in sysList:
         print("[-]该网站识别结果超过 10 个，疑似蜜罐，漏洞探测程序退出！")
