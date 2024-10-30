@@ -25,6 +25,8 @@ def getTokenOrEmail():
 
 #判断规则库的有效期
 def judgeRuleTime(rulepath):
+    if not os.path.exists(rulepath):
+        return False
     sysinfo = json.loads(open(rulepath, encoding="utf-8").read())
     downtime = sysinfo["timestamp"]
     nowtime = time.time()
