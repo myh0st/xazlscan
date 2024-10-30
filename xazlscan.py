@@ -97,10 +97,10 @@ def scanSingleSite(target):
     rootsite = getRootSite(target)
     sysList = get_site_info(rootsite, sysRules["system_rules"])
     uinfo = getTmpUuid()   
-
-    #判断是否识别为蜜罐，指纹识别结果超过阈值
-    if len(sysList) >= 6:
-        print("[-]该网站识别结果超过 6 个，疑似蜜罐，漏洞探测程序退出！")
+    print(sysList)
+    #判断是否识别为蜜罐，指纹识别结果超过阈值，或者命中蜜罐规则 5998
+    if len(sysList) >= 10 or 5998 in sysList:
+        print("[-]该网站识别结果超过 10 个，疑似蜜罐，漏洞探测程序退出！")
         sys.exit()
 
     #第三步，根据获取到的系统列表，判断用户是否有足够的积分购买POC
@@ -132,8 +132,8 @@ def auto_get():
         rootsite = inputQueue.get()
         syslist = get_site_info(rootsite, sysrules)
         
-        #判断是否识别为蜜罐，指纹识别结果超过阈值
-        if len(syslist) >= 6:
+        #判断是否识别为蜜罐，指纹识别结果超过阈值，或者命中蜜罐规则 5998
+        if len(syslist) >= 10 or 5998 in sysList:
             continue
         
         #print(sysrules)
