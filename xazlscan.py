@@ -47,8 +47,13 @@ def getPocToLocal(sid, token, email):
         return False
     if newpoc != 0:
         print("[+]购买成功，剩余积分：", buyinfo["score"])
+        
     poclist = buyinfo["poclist"]
-
+    if len(poclist) != 0:
+        print("[+]系统收录该系统的 POC 数量为： ", len(poclist))
+        for item in poclist:
+            print("[*]", item[1], item[2])
+        
     if not os.path.exists(pocpath):
         os.mkdir(pocpath)
 
@@ -64,7 +69,6 @@ def getPocToLocal(sid, token, email):
         if not os.path.exists(savefile):
             print("[+]正在下载POC：", savefile)
             downloadPoc(savefile, puuid, email, token)
-    print("[+]POC已全部下载同步，即将启动 nuclei 进行漏洞探测")
     return True
 
 #检测基础环境
@@ -97,7 +101,7 @@ def scanSingleSite(target):
     rootsite = getRootSite(target)
     sysList = get_site_info(rootsite, sysRules["system_rules"])
     uinfo = getTmpUuid()   
-    #print(sysList)
+    print(sysList)
     #判断是否识别为蜜罐，指纹识别结果超过阈值，或者命中蜜罐规则 5998
     if len(sysList) >= 10 or 5998 in sysList:
         print("[-]该网站识别结果超过 10 个，疑似蜜罐，漏洞探测程序退出！")
@@ -106,6 +110,10 @@ def scanSingleSite(target):
     #第三步，根据获取到的系统列表，判断用户是否有足够的积分购买POC
     for sid in sysList:
         if not getPocToLocal(sid, token, email):
+            continue
+        
+        scanflag = input("[+]是否检测该系统（0 不检测）？")
+        if scanflag == "0":
             continue
 
         vulnfile = vulnpath + uinfo + "/" + str(sid) + ".txt"
@@ -193,6 +201,7 @@ def scanSiteFile(tfile, thread=30):
     #第三步，根据获取到的所有系统类型，一一计算需要消耗的积分数
     for sfile in os.listdir(respath+uinfo):
         sid = sfile.split(".")[0]
+        
         if not getPocToLocal(sid, token, email):
             continue
 
