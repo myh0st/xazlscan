@@ -29,7 +29,7 @@ def getPocToLocal(sid, token, email):
         print("[-]查询POC信息失败，错误提示：", pocinfo["msg"])
         return False
 
-    print("[+]系统信息：", pocinfo["sysinfo"])
+    print("[+]SID: ", sid," 系统信息：", pocinfo["sysinfo"])
     if pocinfo["pnum"] == 0:
         print("[+]该系统所涉及的POC为0，无法进行后续操作！")
         return False
@@ -52,7 +52,7 @@ def getPocToLocal(sid, token, email):
     if len(poclist) != 0:
         print("[+]系统收录该系统的 POC 数量为： ", len(poclist))
         for item in poclist:
-            print("[*]", item[1], item[2])
+            print("[*]", item[1], item[2], item[3])
         
     if not os.path.exists(pocpath):
         os.mkdir(pocpath)
@@ -101,7 +101,7 @@ def scanSingleSite(target):
     rootsite = getRootSite(target)
     sysList = get_site_info(rootsite, sysRules["system_rules"])
     uinfo = getTmpUuid()   
-    print(sysList)
+    print("临时目录名：", uinfo, "指纹识别结果：", sysList)
     #判断是否识别为蜜罐，指纹识别结果超过阈值，或者命中蜜罐规则 5998
     if len(sysList) >= 10 or 5998 in sysList:
         print("[-]该网站识别结果超过 10 个，疑似蜜罐，漏洞探测程序退出！")
