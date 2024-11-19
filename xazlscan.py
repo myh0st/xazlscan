@@ -49,7 +49,7 @@ def getPocToLocal(sid, token, email):
         print("[+]购买成功，剩余积分：", buyinfo["score"])
         
     poclist = buyinfo["poclist"]
-    if len(poclist) != 0:
+    if len(poclist) >= 0:
         print("[+]系统收录该系统的 POC 数量为： ", len(poclist))
         for item in poclist:
             print("[*]", item[1], item[2], item[3])
