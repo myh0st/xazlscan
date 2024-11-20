@@ -17,8 +17,6 @@ import warnings
 from gzip import GzipFile
 from lib.util import judgeRuleTime
 
-
-
 try:
     from StringIO import StringIO
     readBytesCustom = StringIO
@@ -34,6 +32,16 @@ except ImportError:
 
 warnings.filterwarnings("ignore")
 
+#检查 API 接口是否可以正常访问
+def check_api_alive():
+    apiPath = ["https://www.xazlsec.com/api/", "http://api..xazlsec.com/"]
+    for api in apiPath:
+        try:
+            requests.get(api, timeout=10)
+            return api
+        except:
+            pass
+    return ""
 
 #检查单条规则
 def check_rule(rule, site_info):
@@ -49,7 +57,8 @@ def check_rule(rule, site_info):
         except:
             print(r)
         content = r['content'].lower()
-        #print(func, content, header)
+        #if content == "cyberpanel":
+        #    print(func, content, header)
         #sys.exit()
         if  func == 'header_contains':
             if content not in header:
@@ -113,7 +122,7 @@ def send_request(url):
     '''
     try:
         #proxies = { "http": "127.0.0.1:8080","https": "127.0.0.1:8080"}
-        with requests.get(url, timeout=10, headers=get_headers(), verify=False,
+        with requests.get(url, timeout=60, headers=get_headers(), verify=False,
                           allow_redirects=True) as response:
             if int(response.headers.get("content-length", default=1000)) > 200000:
                 code, rep_headers, body = get_response(url, response, True)
@@ -123,7 +132,7 @@ def send_request(url):
         print("用户强制程序，系统中止!")
         exit(0)
     except Exception as e:
-        print(e)
+        #print(e)
         return "", 0, "", "", ""
 
     server = ""
@@ -152,21 +161,21 @@ def get_site_info(website, sytem_rules):
                 break
         if flag == True:
             systemlist.append(sid)
-            
+
     return systemlist
 
 #初始化规则库
-def initSysRules(email, token):
-    url = "https://www.xazlsec.com/api/get_sysrules/?token={}&email={}".format(token, email)
+def initSysRules(apiPath, email, token):
+    url = apiPath + "get_sysrules/?token={}&email={}".format(token, email)
     rulepath = "config/sysrule.json"
     if not os.path.exists(rulepath) or not judgeRuleTime(rulepath):
-        sysinfo = requests.get(url, timeout=20).json()
+        sysinfo = requests.get(url, timeout=60).json()
         open(rulepath, "w", encoding="utf-8").write(json.dumps(sysinfo))
     return sysinfo
     
 #下载POC到本地
-def downloadPoc(savefile, pocuuid, email, token):
-    url = "https://www.xazlsec.com/api/download_poc/?token={}&id={}&email={}".format(token, pocuuid, email)
+def downloadPoc(apiPath, savefile, pocuuid, email, token):
+    url = apiPath + "download_poc/?token={}&id={}&email={}".format(token, pocuuid, email)
 
     pocdata = requests.get(url)
 
@@ -179,20 +188,20 @@ def downloadPoc(savefile, pocuuid, email, token):
     open(savefile, "wb").write(pocdata.content)
 
 #搜索POC信息
-def searchPoc(sid, token, email):
-    url = "https://www.xazlsec.com/api/search_poc/?token={}&sid={}&email={}".format(token, sid, email)
+def searchPoc(apiPath, sid, token, email):
+    url = apiPath + "search_poc/?token={}&sid={}&email={}".format(token, sid, email)
     jsondata = requests.get(url).json()
     return jsondata
 
 #购买POC
-def buyPoc(sid, token, email):
-    url = "https://www.xazlsec.com/api/buy_poc/?token={}&sid={}&email={}".format(token, sid, email)
+def buyPoc(apiPath, sid, token, email):
+    url = apiPath + "buy_poc/?token={}&sid={}&email={}".format(token, sid, email)
     jsondata = requests.get(url).json()
     return jsondata
 
 #检查Token是否有效
-def checkToken(token, email):
-    url = "https://www.xazlsec.com/api/check_token/?token={}&email={}".format(token, email)
+def checkToken(apiPath, token, email):
+    url = apiPath + "check_token/?token={}&email={}".format(token, email)
     jsondata = requests.get(url).json()
     if jsondata["status"] == "false":
         return False
