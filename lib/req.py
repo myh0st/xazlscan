@@ -34,7 +34,7 @@ warnings.filterwarnings("ignore")
 
 #检查 API 接口是否可以正常访问
 def check_api_alive():
-    apiPath = ["https://www.xazlsec.com/api/", "http://api..xazlsec.com/"]
+    apiPath = ["https://www.xazlsec.com/api/", "http://api.xazlsec.com/"]
     for api in apiPath:
         try:
             requests.get(api, timeout=10)
