@@ -20,7 +20,7 @@
 
 ![](img/4.png)
 
-4、下载 nuclei 工具至 bin 目录，给 nuclei 增加可执行权限后方可使用
+4、下载 nuclei 工具至 bin 目录，给 nuclei 增加可执行权限后方可使用，没有bin 目录可以自己创建
 
 
 
